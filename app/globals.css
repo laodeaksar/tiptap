@@ -127,3 +127,35 @@
     @apply font-sans;
     }
 }
+
+@layer components {
+  .tiptap {
+    @apply text-[15px] text-foreground;
+  }
+
+  .tiptap h1 {
+    @apply mb-3 text-3xl font-semibold tracking-tight;
+  }
+
+  .tiptap p {
+    @apply mb-3 text-[16px] leading-8 text-foreground/90;
+  }
+
+  .tiptap ul,
+  .tiptap ol {
+    @apply mb-4 ml-6 space-y-2;
+  }
+
+  .tiptap li {
+    @apply leading-7;
+  }
+
+  .tiptap blockquote {
+    @apply my-4 border-l-2 border-border pl-4 italic text-muted-foreground;
+  }
+
+  .tiptap p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    @apply pointer-events-none float-left h-0 text-muted-foreground;
+  }
+}

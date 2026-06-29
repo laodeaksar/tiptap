@@ -13,7 +13,35 @@ import {
   Type,
   Bold,
   Italic,
+  ImagePlus,
 } from "lucide-react"
+
+function uploadImageAndInsert(editor: Editor, range: Range) {
+  const input = document.createElement("input")
+  input.type = "file"
+  input.accept = "image/jpeg,image/png,image/gif,image/webp,image/svg+xml"
+
+  input.onchange = async () => {
+    const file = input.files?.[0]
+    if (!file) return
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+      const res = await fetch("/api/upload", { method: "POST", body: formData })
+      if (!res.ok) {
+        const { error } = await res.json()
+        alert(error ?? "Upload failed")
+        return
+      }
+      const { url } = await res.json()
+      editor.chain().focus().deleteRange(range).setImage({ src: url }).run()
+    } catch {
+      alert("Upload failed. Please try again.")
+    }
+  }
+
+  input.click()
+}
 
 export interface SlashItem {
   title: string
@@ -133,6 +161,14 @@ export const SLASH_ITEMS: SlashItem[] = [
     command: (editor, range) =>
       editor.chain().focus().deleteRange(range).setHorizontalRule().run(),
   },
+  {
+    title: "Image",
+    description: "Upload an image from your device",
+    icon: ImagePlus,
+    keywords: ["image", "img", "photo", "picture", "upload", "attachment", "file"],
+    group: "Media",
+    command: (editor, range) => uploadImageAndInsert(editor, range),
+  },
 ]
 
 export function filterSlashItems(query: string): SlashItem[] {
@@ -150,4 +186,5 @@ export const SLASH_GROUPS = [
   "Inline",
   "Lists",
   "Advanced",
+  "Media",
 ] as const

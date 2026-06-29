@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, use } from "react"
+import { useState, useRef, use, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Editor } from "@/components/editor/editor"
@@ -38,13 +38,17 @@ export default function DocPage({ params }: { params: Promise<{ id: string }> })
     retry: false,
   })
 
-  if (doc && !titleInitialized.current) {
-    setTitle(doc.title)
-    setIcon(doc.icon)
-    titleInitialized.current = true
-  }
+  useEffect(() => {
+    if (doc && !titleInitialized.current) {
+      setTitle(doc.title)
+      setIcon(doc.icon)
+      titleInitialized.current = true
+    }
+  }, [doc])
 
-  if (isError) router.push("/")
+  useEffect(() => {
+    if (isError) router.push("/")
+  }, [isError, router])
 
   const updateMutation = useMutation({
     mutationFn: (updates: Parameters<typeof documentsApi.update>[1]) =>

@@ -9,6 +9,7 @@ import Heading from "@tiptap/extension-heading"
 import HorizontalRule from "@tiptap/extension-horizontal-rule"
 import { TextStyle } from "@tiptap/extension-text-style"
 import Color from "@tiptap/extension-color"
+import Image from "@tiptap/extension-image"
 import { SlashCommand } from "../slash-command"
 
 export const editorExtensions = [
@@ -33,6 +34,10 @@ export const editorExtensions = [
   Link.configure({
     openOnClick: false,
     HTMLAttributes: { class: "underline text-primary cursor-pointer" },
+  }),
+  Image.configure({
+    HTMLAttributes: { class: "rounded-lg max-w-full" },
+    allowBase64: false,
   }),
   SlashCommand,
 ]

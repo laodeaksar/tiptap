@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef, use } from "react"
+import { useState, useRef, use } from "react"
 import { useRouter } from "next/navigation"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Editor } from "@/components/editor/editor"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,85 +19,84 @@ import {
 } from "lucide-react"
 import { useTheme } from "next-themes"
 import { toast } from "sonner"
-
-interface Document {
-  id: string
-  title: string
-  icon: string
-  content: Record<string, unknown> | null
-  isPublic: boolean
-  updatedAt: string
-}
+import { documentsApi, queryKeys } from "@/lib/api"
 
 export default function DocPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const router = useRouter()
+  const queryClient = useQueryClient()
   const { resolvedTheme, setTheme } = useTheme()
-  const [doc, setDoc] = useState<Document | null>(null)
-  const [loading, setLoading] = useState(true)
   const [title, setTitle] = useState("")
   const [icon, setIcon] = useState("📄")
-  const [saved, setSaved] = useState(false)
+  const [savedFlash, setSavedFlash] = useState(false)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const titleInitialized = useRef(false)
 
-  const fetchDoc = useCallback(async () => {
-    const res = await fetch(`/api/documents/${id}`)
-    if (res.ok) {
-      const data = await res.json()
-      setDoc(data)
-      setTitle(data.title)
-      setIcon(data.icon)
-    } else {
+  const { data: doc, isLoading, isError } = useQuery({
+    queryKey: queryKeys.document(id),
+    queryFn: () => documentsApi.get(id),
+    retry: false,
+  })
+
+  if (doc && !titleInitialized.current) {
+    setTitle(doc.title)
+    setIcon(doc.icon)
+    titleInitialized.current = true
+  }
+
+  if (isError) router.push("/")
+
+  const updateMutation = useMutation({
+    mutationFn: (updates: Parameters<typeof documentsApi.update>[1]) =>
+      documentsApi.update(id, updates),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(queryKeys.document(id), updated)
+      queryClient.invalidateQueries({ queryKey: queryKeys.documents })
+      setSavedFlash(true)
+      setTimeout(() => setSavedFlash(false), 2000)
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: () => documentsApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.documents })
+      queryClient.removeQueries({ queryKey: queryKeys.document(id) })
       router.push("/")
-    }
-    setLoading(false)
-  }, [id, router])
-
-  useEffect(() => {
-    fetchDoc()
-  }, [fetchDoc])
-
-  const save = useCallback(
-    async (updates: Partial<Document>) => {
-      await fetch(`/api/documents/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updates),
-      })
-      setSaved(true)
-      setTimeout(() => setSaved(false), 2000)
     },
-    [id]
-  )
+  })
 
-  const handleContentChange = useCallback(
-    (content: Record<string, unknown>) => {
-      if (saveTimer.current) clearTimeout(saveTimer.current)
-      saveTimer.current = setTimeout(() => {
-        save({ content })
-      }, 800)
-    },
-    [save]
-  )
+  const handleContentChange = (content: Record<string, unknown>) => {
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    saveTimer.current = setTimeout(() => {
+      updateMutation.mutate({ content })
+    }, 800)
+  }
 
   const handleTitleBlur = () => {
-    if (title !== doc?.title) save({ title })
+    if (title !== doc?.title) updateMutation.mutate({ title })
   }
 
   const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") (e.target as HTMLInputElement).blur()
   }
 
+  const handleIconClick = () => {
+    const emoji = window.prompt("Choose an emoji icon", icon)
+    if (emoji) {
+      setIcon(emoji)
+      updateMutation.mutate({ icon: emoji })
+    }
+  }
+
   const togglePublic = async () => {
-    const updated = !doc?.isPublic
-    setDoc((prev) => (prev ? { ...prev, isPublic: updated } : prev))
-    await save({ isPublic: updated })
-    if (updated) {
+    if (!doc) return
+    const isPublic = !doc.isPublic
+    updateMutation.mutate({ isPublic })
+    if (isPublic) {
       const url = `${window.location.origin}/p/${id}`
       await navigator.clipboard.writeText(url).catch(() => {})
-      toast.success("Public link copied to clipboard!", {
-        description: url,
-      })
+      toast.success("Public link copied to clipboard!", { description: url })
     } else {
       toast("Page is now private")
     }
@@ -108,13 +108,12 @@ export default function DocPage({ params }: { params: Promise<{ id: string }> })
     toast.success("Link copied!", { description: url })
   }
 
-  const deleteDoc = async () => {
+  const handleDelete = () => {
     if (!confirm("Delete this page permanently?")) return
-    await fetch(`/api/documents/${id}`, { method: "DELETE" })
-    router.push("/")
+    deleteMutation.mutate()
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -132,16 +131,7 @@ export default function DocPage({ params }: { params: Promise<{ id: string }> })
         </Button>
 
         <div className="flex flex-1 items-center gap-2 overflow-hidden">
-          <button
-            className="shrink-0 text-lg leading-none"
-            onClick={() => {
-              const emoji = window.prompt("Choose an emoji icon", icon)
-              if (emoji) {
-                setIcon(emoji)
-                save({ icon: emoji })
-              }
-            }}
-          >
+          <button className="shrink-0 text-lg leading-none" onClick={handleIconClick}>
             {icon}
           </button>
           <Input
@@ -155,10 +145,14 @@ export default function DocPage({ params }: { params: Promise<{ id: string }> })
         </div>
 
         <div className="flex shrink-0 items-center gap-1">
-          {saved && (
+          {(savedFlash || updateMutation.isPending) && (
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Check className="h-3 w-3" />
-              Saved
+              {updateMutation.isPending ? (
+                <span className="h-2.5 w-2.5 animate-spin rounded-full border border-muted-foreground border-t-transparent" />
+              ) : (
+                <Check className="h-3 w-3" />
+              )}
+              {updateMutation.isPending ? "Saving…" : "Saved"}
             </span>
           )}
 
@@ -167,6 +161,7 @@ export default function DocPage({ params }: { params: Promise<{ id: string }> })
             size="sm"
             className="h-8 gap-1.5 text-xs"
             onClick={togglePublic}
+            disabled={updateMutation.isPending}
           >
             {doc.isPublic ? (
               <>
@@ -197,7 +192,13 @@ export default function DocPage({ params }: { params: Promise<{ id: string }> })
             {resolvedTheme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
 
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={deleteDoc}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-destructive hover:text-destructive"
+            onClick={handleDelete}
+            disabled={deleteMutation.isPending}
+          >
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>

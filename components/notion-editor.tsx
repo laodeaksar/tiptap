@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Plus, FileText, Trash2, Moon, Sun, Search } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
@@ -9,51 +10,45 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
-
-interface Document {
-  id: string
-  title: string
-  icon: string
-  updatedAt: string
-}
+import { documentsApi, queryKeys } from "@/lib/api"
 
 export function NotionEditor() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const { resolvedTheme, setTheme } = useTheme()
-  const [documents, setDocuments] = useState<Document[]>([])
   const [search, setSearch] = useState("")
-  const [loading, setLoading] = useState(true)
 
-  const fetchDocuments = useCallback(async () => {
-    try {
-      const res = await fetch("/api/documents")
-      if (res.ok) setDocuments(await res.json())
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  const { data: documents = [], isLoading } = useQuery({
+    queryKey: queryKeys.documents,
+    queryFn: documentsApi.list,
+  })
 
-  useEffect(() => {
-    fetchDocuments()
-  }, [fetchDocuments])
-
-  const createDocument = async () => {
-    const res = await fetch("/api/documents", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: "Untitled" }),
-    })
-    if (res.ok) {
-      const doc = await res.json()
+  const createMutation = useMutation({
+    mutationFn: () => documentsApi.create("Untitled"),
+    onSuccess: (doc) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.documents })
       router.push(`/doc/${doc.id}`)
-    }
-  }
+    },
+  })
 
-  const deleteDocument = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation()
-    await fetch(`/api/documents/${id}`, { method: "DELETE" })
-    setDocuments((prev) => prev.filter((d) => d.id !== id))
-  }
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => documentsApi.delete(id),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.documents })
+      const previous = queryClient.getQueryData(queryKeys.documents)
+      queryClient.setQueryData(
+        queryKeys.documents,
+        (old: typeof documents) => old.filter((d) => d.id !== id)
+      )
+      return { previous }
+    },
+    onError: (_err, _id, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(queryKeys.documents, ctx.previous)
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.documents })
+    },
+  })
 
   const filtered = documents.filter((d) =>
     d.title.toLowerCase().includes(search.toLowerCase())
@@ -95,7 +90,8 @@ export function NotionEditor() {
             variant="outline"
             size="sm"
             className="w-full justify-start gap-2 text-xs"
-            onClick={createDocument}
+            onClick={() => createMutation.mutate()}
+            disabled={createMutation.isPending}
           >
             <Plus className="h-3.5 w-3.5" />
             New Page
@@ -105,7 +101,7 @@ export function NotionEditor() {
         <Separator />
 
         <ScrollArea className="flex-1 py-2">
-          {loading ? (
+          {isLoading ? (
             <div className="space-y-1 px-2">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="h-8 animate-pulse rounded-md bg-muted" />
@@ -132,7 +128,11 @@ export function NotionEditor() {
                     variant="ghost"
                     size="icon"
                     className="h-6 w-6 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
-                    onClick={(e) => deleteDocument(e, doc.id)}
+                    disabled={deleteMutation.isPending}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      deleteMutation.mutate(doc.id)
+                    }}
                   >
                     <Trash2 className="h-3.5 w-3.5 text-destructive" />
                   </Button>
@@ -158,7 +158,11 @@ export function NotionEditor() {
         <p className="max-w-sm text-sm text-muted-foreground">
           Choose a page from the sidebar to start editing, or create a new one.
         </p>
-        <Button onClick={createDocument} className="mt-2 gap-2">
+        <Button
+          onClick={() => createMutation.mutate()}
+          disabled={createMutation.isPending}
+          className="mt-2 gap-2"
+        >
           <Plus className="h-4 w-4" />
           New Page
         </Button>

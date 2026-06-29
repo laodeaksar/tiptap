@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@shadcn/react": "^0.1.0",
+    "@tanstack/react-query": "^5.101.2",
     "@tiptap/extension-blockquote": "^3.27.1",
     "@tiptap/extension-bubble-menu": "^3.27.1",
     "@tiptap/extension-bullet-list": "^3.27.1",

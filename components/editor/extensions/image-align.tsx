@@ -7,7 +7,9 @@ import {
   type NodeViewProps,
 } from "@tiptap/react"
 import { AlignCenter, AlignLeft, AlignRight, Trash2 } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import {
@@ -19,6 +21,18 @@ import {
 
 type Align = "left" | "center" | "right"
 
+const JUSTIFY: Record<Align, string> = {
+  left: "flex-start",
+  center: "center",
+  right: "flex-end",
+}
+
+const TEXT_ALIGN: Record<Align, string> = {
+  left: "left",
+  center: "center",
+  right: "right",
+}
+
 function ImageAlignView({
   node,
   updateAttributes,
@@ -29,17 +43,32 @@ function ImageAlignView({
   const src = node.attrs.src as string
   const alt = (node.attrs.alt as string) ?? ""
   const title = (node.attrs.title as string) ?? ""
+  const captionAttr = (node.attrs.caption as string) ?? ""
 
-  const justifyMap: Record<Align, string> = {
-    left: "flex-start",
-    center: "center",
-    right: "flex-end",
+  const [caption, setCaption] = useState(captionAttr)
+  const captionRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    setCaption((node.attrs.caption as string) ?? "")
+  }, [node.attrs.caption])
+
+  const stopPropagation = (e: React.SyntheticEvent) => e.stopPropagation()
+
+  const handleCaptionKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.stopPropagation()
+    if (e.key === "Enter" || e.key === "Escape") {
+      captionRef.current?.blur()
+    }
+  }
+
+  const handleCaptionBlur = () => {
+    updateAttributes({ caption })
   }
 
   return (
     <NodeViewWrapper
-      className="my-3 flex w-full"
-      style={{ justifyContent: justifyMap[align] ?? "center" }}
+      className="my-3 flex w-full flex-col"
+      style={{ alignItems: JUSTIFY[align] ?? "center" }}
     >
       <div className="relative inline-block max-w-full select-none">
         {selected && (
@@ -55,12 +84,7 @@ function ImageAlignView({
               >
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <ToggleGroupItem
-                      value="left"
-                      size="sm"
-                      variant="outline"
-                      aria-label="Align left"
-                    >
+                    <ToggleGroupItem value="left" size="sm" variant="outline" aria-label="Align left">
                       <AlignLeft className="h-3.5 w-3.5" />
                     </ToggleGroupItem>
                   </TooltipTrigger>
@@ -69,12 +93,7 @@ function ImageAlignView({
 
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <ToggleGroupItem
-                      value="center"
-                      size="sm"
-                      variant="outline"
-                      aria-label="Center"
-                    >
+                    <ToggleGroupItem value="center" size="sm" variant="outline" aria-label="Center">
                       <AlignCenter className="h-3.5 w-3.5" />
                     </ToggleGroupItem>
                   </TooltipTrigger>
@@ -83,12 +102,7 @@ function ImageAlignView({
 
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <ToggleGroupItem
-                      value="right"
-                      size="sm"
-                      variant="outline"
-                      aria-label="Align right"
-                    >
+                    <ToggleGroupItem value="right" size="sm" variant="outline" aria-label="Align right">
                       <AlignRight className="h-3.5 w-3.5" />
                     </ToggleGroupItem>
                   </TooltipTrigger>
@@ -117,17 +131,33 @@ function ImageAlignView({
 
         <img
           src={src}
-          alt={alt}
+          alt={caption || alt}
           title={title || undefined}
           className="block max-w-full rounded-lg"
           style={{
-            outline: selected ? "2px solid hsl(var(--ring))" : "2px solid transparent",
+            outline: selected
+              ? "2px solid hsl(var(--ring))"
+              : "2px solid transparent",
             outlineOffset: "2px",
             transition: "outline-color 0.1s",
           }}
           draggable={false}
         />
       </div>
+
+      <Input
+        ref={captionRef}
+        value={caption}
+        onChange={(e) => setCaption(e.target.value)}
+        onBlur={handleCaptionBlur}
+        onKeyDown={handleCaptionKeyDown}
+        onKeyUp={stopPropagation}
+        onKeyPress={stopPropagation}
+        onClick={stopPropagation}
+        placeholder="Add a caption…"
+        className="mt-1.5 h-7 border-none bg-transparent px-1 text-center text-xs text-muted-foreground shadow-none placeholder:text-muted-foreground/50 focus-visible:ring-0"
+        style={{ textAlign: TEXT_ALIGN[align] ?? "center", maxWidth: "100%" }}
+      />
     </NodeViewWrapper>
   )
 }
@@ -142,6 +172,12 @@ export const ImageAlign = Image.extend({
         default: "center" as Align,
         parseHTML: (el) => (el.getAttribute("data-align") as Align) ?? "center",
         renderHTML: (attrs) => ({ "data-align": attrs.align }),
+      },
+      caption: {
+        default: "",
+        parseHTML: (el) => el.getAttribute("data-caption") ?? "",
+        renderHTML: (attrs) =>
+          attrs.caption ? { "data-caption": attrs.caption } : {},
       },
     }
   },

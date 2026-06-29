@@ -7,8 +7,9 @@ import CodeBlock from "@tiptap/extension-code-block"
 import Blockquote from "@tiptap/extension-blockquote"
 import Heading from "@tiptap/extension-heading"
 import HorizontalRule from "@tiptap/extension-horizontal-rule"
-import TextStyle from "@tiptap/extension-text-style"
+import { TextStyle } from "@tiptap/extension-text-style"
 import Color from "@tiptap/extension-color"
+import { SlashCommand } from "../slash-command"
 
 export const editorExtensions = [
   StarterKit.configure({
@@ -16,6 +17,7 @@ export const editorExtensions = [
     codeBlock: false,
     heading: false,
     horizontalRule: false,
+    link: false,
   }),
   Heading.configure({ levels: [1, 2, 3] }),
   Blockquote,
@@ -24,7 +26,7 @@ export const editorExtensions = [
   TextStyle,
   Color,
   Placeholder.configure({
-    placeholder: "Start writing, or type '/' for commands…",
+    placeholder: "Type '/' for commands, or start writing…",
   }),
   TaskList,
   TaskItem.configure({ nested: true }),
@@ -32,4 +34,5 @@ export const editorExtensions = [
     openOnClick: false,
     HTMLAttributes: { class: "underline text-primary cursor-pointer" },
   }),
+  SlashCommand,
 ]

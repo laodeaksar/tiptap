@@ -1,0 +1,1 @@
+- [Tiptap v3 breaking changes](tiptap-v3-compat.md) — v3 removed default exports and BubbleMenu React component; all imports must be named exports

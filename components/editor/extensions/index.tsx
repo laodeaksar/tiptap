@@ -11,6 +11,7 @@ import { TextStyle } from "@tiptap/extension-text-style"
 import Color from "@tiptap/extension-color"
 import Image from "@tiptap/extension-image"
 import { SlashCommand } from "../slash-command"
+import { DropImage } from "./drop-image"
 
 export const editorExtensions = [
   StarterKit.configure({
@@ -40,4 +41,5 @@ export const editorExtensions = [
     allowBase64: false,
   }),
   SlashCommand,
+  DropImage,
 ]

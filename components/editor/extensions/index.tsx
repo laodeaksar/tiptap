@@ -9,9 +9,9 @@ import Heading from "@tiptap/extension-heading"
 import HorizontalRule from "@tiptap/extension-horizontal-rule"
 import { TextStyle } from "@tiptap/extension-text-style"
 import Color from "@tiptap/extension-color"
-import Image from "@tiptap/extension-image"
 import { SlashCommand } from "../slash-command"
 import { DropImage } from "./drop-image"
+import { ImageAlign } from "./image-align"
 
 export const editorExtensions = [
   StarterKit.configure({
@@ -36,10 +36,7 @@ export const editorExtensions = [
     openOnClick: false,
     HTMLAttributes: { class: "underline text-primary cursor-pointer" },
   }),
-  Image.configure({
-    HTMLAttributes: { class: "rounded-lg max-w-full" },
-    allowBase64: false,
-  }),
+  ImageAlign,
   SlashCommand,
   DropImage,
 ]

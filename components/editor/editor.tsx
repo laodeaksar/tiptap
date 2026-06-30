@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react"
 import { useDragContextMenu } from "./drag-context-menu"
 import { EditorBubbleMenu } from "./bubble-menu"
 import { EditorFloatingMenu } from "./floating-menu"
+import { EditorWordCount } from "./word-count"
 
 interface EditorProps {
   content: Record<string, unknown> | null
@@ -102,6 +103,7 @@ export function Editor({ content, onChange, editable = true }: EditorProps) {
         editor={editor}
         className="tiptap min-h-[60vh] w-full cursor-text focus-within:outline-none"
       />
+      {editable && <EditorWordCount editor={editor} />}
     </div>
   )
 }

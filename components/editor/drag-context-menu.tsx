@@ -9,7 +9,9 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
@@ -20,6 +22,8 @@ import {
   GripVertical,
   Trash2,
   Copy,
+  ArrowUp,
+  ArrowDown,
   Type,
   Heading1,
   Heading2,
@@ -64,6 +68,40 @@ function DragHandleMenu({
     editor.chain().focus().insertContentAt(end, node.toJSON()).run()
   }
 
+  const handleMoveUp = () => {
+    const { pos, node } = currentNodeRef.current
+    if (pos < 0 || !node) return
+    setOpen(false)
+    editor.commands.command(({ tr, state }) => {
+      const $pos = state.doc.resolve(pos)
+      const index = $pos.index()
+      if (index === 0) return false
+      const prevNode = $pos.parent.child(index - 1)
+      const prevPos = pos - prevNode.nodeSize
+      tr.delete(pos, pos + node.nodeSize)
+      tr.insert(prevPos, node)
+      return true
+    })
+    editor.commands.focus()
+  }
+
+  const handleMoveDown = () => {
+    const { pos, node } = currentNodeRef.current
+    if (pos < 0 || !node) return
+    setOpen(false)
+    editor.commands.command(({ tr, state }) => {
+      const $pos = state.doc.resolve(pos)
+      const parent = $pos.parent
+      const index = $pos.index()
+      if (index === parent.childCount - 1) return false
+      const nextNode = parent.child(index + 1)
+      tr.delete(pos, pos + node.nodeSize)
+      tr.insert(pos + nextNode.nodeSize, node)
+      return true
+    })
+    editor.commands.focus()
+  }
+
   const turnInto = (fn: () => void) => {
     selectNode()
     setOpen(false)
@@ -82,17 +120,32 @@ function DragHandleMenu({
           <GripVertical className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent side="bottom" align="start" className="min-w-48">
+      <DropdownMenuContent side="bottom" align="start" className="min-w-52">
+        <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+          Block actions
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleMoveUp}>
+          <ArrowUp />
+          Move up
+          <DropdownMenuShortcut>⌥↑</DropdownMenuShortcut>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleMoveDown}>
+          <ArrowDown />
+          Move down
+          <DropdownMenuShortcut>⌥↓</DropdownMenuShortcut>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleDuplicate}>
+          <Copy />
+          Duplicate
+        </DropdownMenuItem>
         <DropdownMenuItem
           variant="destructive"
           onClick={handleDelete}
         >
           <Trash2 />
           Delete
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleDuplicate}>
-          <Copy />
-          Duplicate
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuSub>

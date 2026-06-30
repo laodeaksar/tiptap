@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import { Bold, Italic, Strikethrough, Code, Link } from "lucide-react"
 import { Toggle } from "@/components/ui/toggle"
+import { useDragContextMenu } from "./drag-context-menu"
 
 interface BubbleToolbarProps {
   editor: TiptapEditor
@@ -123,9 +124,13 @@ interface EditorProps {
 
 export function Editor({ content, onChange, editable = true }: EditorProps) {
   const [isDragOver, setIsDragOver] = useState(false)
+  const { extension: dragHandleExt, mountIntoEditor } = useDragContextMenu()
 
   const editor = useEditor({
-    extensions: editorExtensions,
+    extensions: [
+      ...editorExtensions,
+      ...(dragHandleExt && editable ? [dragHandleExt] : []),
+    ],
     content: content ?? { type: "doc", content: [] },
     editable,
     immediatelyRender: false,
@@ -133,6 +138,10 @@ export function Editor({ content, onChange, editable = true }: EditorProps) {
       onChange?.(editor.getJSON() as Record<string, unknown>)
     },
   })
+
+  useEffect(() => {
+    if (editable) mountIntoEditor(editor)
+  }, [editor, editable, mountIntoEditor])
 
   const prevContent = useRef<string>("")
 
@@ -143,7 +152,7 @@ export function Editor({ content, onChange, editable = true }: EditorProps) {
       prevContent.current = incoming
       const current = JSON.stringify(editor.getJSON())
       if (current !== incoming) {
-        editor.commands.setContent(content ?? { type: "doc", content: [] }, false)
+        editor.commands.setContent(content ?? { type: "doc", content: [] }, { emitUpdate: false })
       }
     }
   }, [content, editor])

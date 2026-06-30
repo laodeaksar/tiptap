@@ -5,6 +5,7 @@ import { editorExtensions } from "./extensions"
 import { useEffect, useRef, useState } from "react"
 import { useDragContextMenu } from "./drag-context-menu"
 import { EditorBubbleMenu } from "./bubble-menu"
+import { EditorFloatingMenu } from "./floating-menu"
 
 interface EditorProps {
   content: Record<string, unknown> | null
@@ -75,6 +76,7 @@ export function Editor({ content, onChange, editable = true }: EditorProps) {
       onDrop={handleDrop}
     >
       {editable && <EditorBubbleMenu editor={editor} />}
+      {editable && <EditorFloatingMenu editor={editor} />}
       {isDragOver && (
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-lg border-2 border-dashed border-primary bg-primary/5">
           <div className="flex flex-col items-center gap-2 text-primary">

@@ -28,6 +28,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { LoadingScreen } from "@/components/loading-screen";
 import {
   ArrowLeft,
   Share2,
@@ -155,9 +156,7 @@ export default function DocPage({ params }: { params: Promise<{ id: string }> })
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-      </div>
+      <LoadingScreen />
     )
   }
 
@@ -169,7 +168,7 @@ export default function DocPage({ params }: { params: Promise<{ id: string }> })
         <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push("/")}>
+              <Button variant="ghost" size="icon" onClick={() => router.push("/")}>
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -287,7 +286,6 @@ export default function DocPage({ params }: { params: Promise<{ id: string }> })
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8"
                   onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
                 >
                   {resolvedTheme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -299,9 +297,8 @@ export default function DocPage({ params }: { params: Promise<{ id: string }> })
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant="ghost"
+                  variant="destructive"
                   size="icon"
-                  className="h-8 w-8 text-destructive hover:text-destructive"
                   onClick={() => setShowDeleteDialog(true)}
                   disabled={deleteMutation.isPending}
                 >
@@ -337,7 +334,7 @@ export default function DocPage({ params }: { params: Promise<{ id: string }> })
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              variant="destructive"
               onClick={() => deleteMutation.mutate()}
             >
               Delete

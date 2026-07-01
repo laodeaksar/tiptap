@@ -113,8 +113,8 @@ function DragHandleMenu({
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          size="icon"
-          className="h-6 w-6 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
+          size="icon-xs"
+          className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
           onMouseDown={(e) => e.preventDefault()}
         >
           <GripVertical className="h-4 w-4" />
@@ -126,38 +126,38 @@ function DragHandleMenu({
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleMoveUp}>
-          <ArrowUp />
+          <ArrowUp data-icon="inline-start" />
           Move up
           <DropdownMenuShortcut>⌥↑</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleMoveDown}>
-          <ArrowDown />
+          <ArrowDown data-icon="inline-start" />
           Move down
           <DropdownMenuShortcut>⌥↓</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleDuplicate}>
-          <Copy />
+          <Copy data-icon="inline-start" />
           Duplicate
         </DropdownMenuItem>
         <DropdownMenuItem
           variant="destructive"
           onClick={handleDelete}
         >
-          <Trash2 />
+          <Trash2 data-icon="inline-start" />
           Delete
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
-            <Type />
+            <Type data-icon="inline-start" />
             Turn into
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
             <DropdownMenuItem
               onClick={() => turnInto(() => editor.chain().focus().setParagraph().run())}
             >
-              <Type />
+              <Type data-icon="inline-start" />
               Paragraph
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -165,7 +165,7 @@ function DragHandleMenu({
                 turnInto(() => editor.chain().focus().setHeading({ level: 1 }).run())
               }
             >
-              <Heading1 />
+              <Heading1 data-icon="inline-start" />
               Heading 1
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -173,7 +173,7 @@ function DragHandleMenu({
                 turnInto(() => editor.chain().focus().setHeading({ level: 2 }).run())
               }
             >
-              <Heading2 />
+              <Heading2 data-icon="inline-start" />
               Heading 2
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -181,26 +181,26 @@ function DragHandleMenu({
                 turnInto(() => editor.chain().focus().setHeading({ level: 3 }).run())
               }
             >
-              <Heading3 />
+              <Heading3 data-icon="inline-start" />
               Heading 3
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => turnInto(() => editor.chain().focus().setBlockquote().run())}
             >
-              <Quote />
+              <Quote data-icon="inline-start" />
               Quote
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => turnInto(() => editor.chain().focus().setCodeBlock().run())}
             >
-              <Code2 />
+              <Code2 data-icon="inline-start" />
               Code block
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => turnInto(() => editor.chain().focus().toggleTaskList().run())}
             >
-              <ListTodo />
+              <ListTodo data-icon="inline-start" />
               To-do list
             </DropdownMenuItem>
           </DropdownMenuSubContent>

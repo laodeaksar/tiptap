@@ -42,7 +42,7 @@ export function EditorWordCount({ editor }: EditorWordCountProps) {
               variant="secondary"
               className="gap-1.5 px-2 py-0.5 text-[11px] font-normal cursor-default"
             >
-              <Type className="h-3 w-3" />
+              <Type className="h-3 w-3" data-icon="inline-start" />
               {stats.words} {stats.words === 1 ? "word" : "words"}
             </Badge>
           </TooltipTrigger>
@@ -57,7 +57,7 @@ export function EditorWordCount({ editor }: EditorWordCountProps) {
               variant="secondary"
               className="gap-1.5 px-2 py-0.5 text-[11px] font-normal cursor-default"
             >
-              <AlignLeft className="h-3 w-3" />
+              <AlignLeft className="h-3 w-3" data-icon="inline-start" />
               {stats.chars} chars
             </Badge>
           </TooltipTrigger>
@@ -72,7 +72,7 @@ export function EditorWordCount({ editor }: EditorWordCountProps) {
               variant="secondary"
               className="gap-1.5 px-2 py-0.5 text-[11px] font-normal cursor-default"
             >
-              <Clock className="h-3 w-3" />
+              <Clock className="h-3 w-3" data-icon="inline-start" />
               {stats.readTime} min read
             </Badge>
           </TooltipTrigger>

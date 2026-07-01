@@ -56,8 +56,8 @@ export function EditorFloatingMenu({ editor }: EditorFloatingMenuProps) {
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  size="icon"
-                  className="h-6 w-6 rounded-md text-muted-foreground shadow-sm hover:text-foreground"
+                  size="icon-xs"
+                  className="rounded-md text-muted-foreground shadow-sm hover:text-foreground"
                   onMouseDown={(e) => e.preventDefault()}
                   aria-label="Insert block"
                 >

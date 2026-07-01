@@ -158,8 +158,8 @@ export function CodeBlockComponent({ node, updateAttributes, editor }: NodeViewP
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 text-white/40 opacity-0 transition-opacity hover:bg-white/10 hover:text-white/80 group-hover:opacity-100"
+                  size="icon-xs"
+                  className="text-white/40 opacity-0 transition-opacity hover:bg-white/10 hover:text-white/80 group-hover:opacity-100"
                   onClick={handleCopy}
                   tabIndex={-1}
                 >

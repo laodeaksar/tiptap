@@ -6,7 +6,12 @@ import {
   ReactNodeViewRenderer,
   type NodeViewProps,
 } from "@tiptap/react"
-import { AlignCenter, AlignLeft, AlignRight, Trash2 } from "lucide-react"
+import { 
+  AlignCenterVertical,
+  AlignStartVertical,
+  AlignEndVertical,
+  Trash2
+} from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -85,7 +90,7 @@ function ImageAlignView({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <ToggleGroupItem value="left" size="sm" variant="outline" aria-label="Align left">
-                      <AlignLeft className="h-3.5 w-3.5" />
+                      <AlignStartVertical className="h-3.5 w-3.5" />
                     </ToggleGroupItem>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">Align left</TooltipContent>
@@ -94,7 +99,7 @@ function ImageAlignView({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <ToggleGroupItem value="center" size="sm" variant="outline" aria-label="Center">
-                      <AlignCenter className="h-3.5 w-3.5" />
+                      <AlignCenterVertical className="h-3.5 w-3.5" />
                     </ToggleGroupItem>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">Center</TooltipContent>
@@ -103,7 +108,7 @@ function ImageAlignView({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <ToggleGroupItem value="right" size="sm" variant="outline" aria-label="Align right">
-                      <AlignRight className="h-3.5 w-3.5" />
+                      <AlignEndVertical className="h-3.5 w-3.5" />
                     </ToggleGroupItem>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">Align right</TooltipContent>
@@ -115,9 +120,8 @@ function ImageAlignView({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    variant="destructive"
+                    size="icon-sm"
                     onClick={() => deleteNode()}
                   >
                     <Trash2 className="h-3.5 w-3.5" />

@@ -32,3 +32,9 @@ outputType = "webview"
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[userenv]
+
+[userenv.shared]
+PUBLIC_CONVEX_SITE_URL = "https://placeholder.convex.site"
+PUBLIC_CONVEX_URL = "https://placeholder.convex.cloud"

@@ -5,15 +5,30 @@
   import { themeStore } from '$lib/stores/theme.svelte';
   import Sidebar from '$lib/components/Sidebar.svelte';
   import { Menu, X } from 'lucide-svelte';
+  import { setupConvex } from 'convex-svelte';
+  import { createSvelteAuthClient } from '@mmailaender/convex-better-auth-svelte/svelte';
+  import { authClient } from '$lib/auth-client';
+  import { env } from '$env/dynamic/public';
   import '../app.css';
 
-  let { children } = $props();
+  let { children, data } = $props();
 
   // Hide sidebar on public pages
   const isPublicRoute = $derived($page.url.pathname.startsWith('/p/'));
 
   // Mobile sidebar
   let mobileSidebarOpen = $state(false);
+
+  // Set up Convex client in Svelte context (no-op if URL not yet configured)
+  const convexUrl = env.PUBLIC_CONVEX_URL;
+  if (convexUrl) {
+    setupConvex(convexUrl);
+    createSvelteAuthClient({
+      authClient,
+      convexUrl,
+      getServerState: () => data.authState,
+    });
+  }
 
   onMount(() => {
     themeStore.init();

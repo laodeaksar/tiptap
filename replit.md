@@ -74,3 +74,13 @@ src/
 - Svelte 5 Runes only — no `writable` stores
 - All CRUD functions are async
 - Minimal but clear comments
+
+## Deployment
+
+- `vercel.json` added — deploys with SvelteKit's `adapter-auto` (already configured in `svelte.config.js`, detects Vercel automatically). Set `PUBLIC_CONVEX_URL` / `PUBLIC_CONVEX_SITE_URL` in the Vercel project's env vars (referenced as secrets in `vercel.json`).
+- `pnpm run convex:dev` — run Convex dev deployment locally
+- `pnpm run convex:deploy` — deploy Convex functions to production
+
+## Setup Status
+
+Project was left as imported per user request — dependencies are not yet installed and no dev server has been started. Convex is not connected (`.replit` has placeholder `PUBLIC_CONVEX_URL`/`PUBLIC_CONVEX_SITE_URL`). Run `pnpm install` and `npx convex dev` when ready to run the app.

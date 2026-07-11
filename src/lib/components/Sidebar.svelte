@@ -127,7 +127,9 @@
   <div
     class="fixed inset-0 z-50 bg-black/40 flex items-start justify-center pt-[15vh]"
     onclick={() => (searchOpen = false)}
+    onkeydown={(e) => e.key === 'Escape' && (searchOpen = false)}
     role="dialog"
+    tabindex="-1"
     aria-modal="true"
     aria-label="Search pages"
   >

@@ -1,0 +1,3 @@
+- [SvelteKit ESM setup](sveltekit-esm.md) — SvelteKit + Vite projects need `"type":"module"` in package.json or vite.config.ts fails to load
+- [TipTap version compat](tiptap-versions.md) — TipTap v3 requested but v2.x used; @sveltejs/vite-plugin-svelte v5 needed for Vite 6+
+- [Svelte 5 reserved prefixes](svelte5-dollar.md) — `$` prefix is reserved for runes; rename ProseMirror `$pos` vars to `rpos` etc. in .svelte files

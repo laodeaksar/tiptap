@@ -2,9 +2,5 @@
   "framework": "sveltekit",
   "buildCommand": "pnpm run build",
   "installCommand": "pnpm install",
-  "devCommand": "pnpm run dev",
-  "env": {
-    "PUBLIC_CONVEX_URL": "@public_convex_url",
-    "PUBLIC_CONVEX_SITE_URL": "@public_convex_site_url"
-  }
+  "devCommand": "pnpm run dev"
 }

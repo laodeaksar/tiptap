@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev --port 5000 --host 0.0.0.0",
-    "build": "convex codegen && vite build",
+    "build": "convex deploy --cmd 'pnpm run build:frontend'",
+    "build:frontend": "vite build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "convex:dev": "convex dev",
